@@ -31,8 +31,8 @@ singleCharaterKeyword  = do
 
 underLinedKeyWord :: Parser String -- parses 
 underLinedKeyWord = do
-    string "——"
-    xs <- manyTill anyChar (try( string "——"))
+    string "》"
+    xs <- manyTill anyChar (try( char '《') )
     return xs
 
 globalCToETable :: M.Map String String
