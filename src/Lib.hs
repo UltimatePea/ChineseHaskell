@@ -6,6 +6,7 @@ import qualified Data.Map as M
 import Data.Char
 import Control.Monad.Identity
 import Control.Monad.State
+import Debug.Trace
 
 chineseToHaskell :: String -> String
 chineseToHaskell xs = case parse whole "" xs of 
@@ -15,10 +16,10 @@ chineseToHaskell xs = case parse whole "" xs of
 
 translate :: [String] -> String -- chinese to english translation
 translate [] = ""
-translate (x:xs) = case globalCToETable M.!? x of 
-    Nothing -> if length x == 1 && isAlphaNum (head x) then x else error $ "No matching for token " ++ show x
-    Just match -> match ++ " " ++ translate xs
-
+translate (x:xs) 
+  | x `M.member` globalCToETable = let match = globalCToETable M.! x in  match ++ " " ++ translate xs
+  | otherwise =  x ++ " " ++ translate xs
+  --if length x == 1 && (isAscii (head x) && (isAlphaNum (head x) || isSpace (head x))) then x ++ " " ++ translate xs  else error $ "No matching for token " ++ show x ++ " : " ++ x
 
 whole :: Parser [String]
 whole = many1 ( try underLinedKeyWord <|> singleCharaterKeyword) <* eof
@@ -43,7 +44,7 @@ type TranslateTable = State (M.Map String String, M.Map String String) ()
 s1 |-: s2 = state $ \(cTe, eTc) ->
     let ncTe = M.insert s1 s2 cTe
         neTc = M.insert s2 s1 eTc
-    in ((ncTe, neTc), ())
+    in ((), (ncTe, neTc))
 
  
 constructTable :: TranslateTable

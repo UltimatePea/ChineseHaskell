@@ -1,6 +1,9 @@
 module Main where
 
 import Lib
+import System.IO
 
 main :: IO ()
-main = someFunc
+main = do 
+    inp <- getContents
+    putStrLn $ chineseToHaskell inp
